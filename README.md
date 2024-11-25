@@ -38,4 +38,4 @@ Ensure you have the following installed on your system:
 ### Steps to Run Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/DCISM-Internship-Tracker.git
+   git clone https://github.com/USC-Mike/DCISM-Internship-Tracker.git
