@@ -1,0 +1,22 @@
+{
+  "name": "dcism-intership-tracker",
+  "version": "1.0.0",
+  "description": "The **DCISM Internship Tracker** is a web-based application designed to streamline the internship tracking process for the Department of Computer, Information Sciences, and Mathematics (DCISM). This tool is tailored for coordinators and students, enabling seamless management of internship records, progress, and evaluations.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss -i ./frontend/assets/css/tailwind.css -o ./frontend/assets/css/output.css --minify",
+    "start": "live-server frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.4.15"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
