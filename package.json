@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tailwindcss -i ./frontend/assets/css/tailwind.css -o ./frontend/assets/css/output.css --minify",
-    "start": "live-server frontend"
+    "start": "live-server public"
   },
   "keywords": [],
   "author": "",

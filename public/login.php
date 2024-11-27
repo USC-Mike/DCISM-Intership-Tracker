@@ -6,7 +6,7 @@
     <!-- Boxicons for icons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <!-- Tailwind CSS file -->
-    <link rel="stylesheet" href="../assets/css/output.css">
+    <link rel="stylesheet" href="./assets/css/output.css">
     <title>Internship Tracker - Login</title>
 </head>
 <body class="bg-gray-100 font-lato">

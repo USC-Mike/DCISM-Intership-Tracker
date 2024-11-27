@@ -4,6 +4,7 @@ $host = 'localhost';   // Database host
 $dbname = 'internship_tracker'; // Database name
 $username = 'root';     // Database username (change if using another user)
 $password = '';         // Database password (leave empty for default XAMPP setup)
+define("ROOT", __DIR__ ."/");
 
 try {
     // Create a PDO instance for database connection
@@ -98,4 +99,4 @@ function registerUser($fullname, $email, $password, $role, $yrlevel, $course) {
         'course' => $course
     ]);
 }
-?>
+

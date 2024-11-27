@@ -1,6 +1,6 @@
 <?php
 session_start();
-include ('../backend/config/db.php'); // Adjust path based on your folder structure
+include(__DIR__ . '/.././src/config/db.php'); // Adjust path based on your folder structure
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Extract data from POST request
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Boxicons for icons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <!-- Tailwind CSS file -->
-    <link rel="stylesheet" href="../assets/css/output.css">
+    <link rel="stylesheet" href="./assets/css/output.css">
     <title>OJT Tracker Registration</title>
 </head>
 <body class="bg-gray-100 font-lato">
