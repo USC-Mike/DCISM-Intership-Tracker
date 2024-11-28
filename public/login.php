@@ -17,8 +17,6 @@
         <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
             <h1 class="text-2xl font-semibold text-center text-blue-500 mb-4">Internship Tracker Login</h1>
             
-            <!-- Login Form -->
-            <form class="space-y-4" method="POST" action=".../backend/controllers/authController.php">
                 <!-- Display Errors -->
                 <?php
                 session_start();
@@ -28,6 +26,8 @@
                 }
                 ?>
 
+            <!-- Login Form -->
+            <form class="space-y-4" method="POST" action="../src/controllers/authcontroller.php">
                 <!-- Role Selector -->
                 <div>
                     <label for="role" class="block text-gray-700">Role</label>
@@ -59,7 +59,7 @@
 
                 <!-- Login Button -->
                 <div>
-                    <button type="submit" 
+                    <button type="submit" name="login"
                             class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:ring focus:ring-blue-300">
                         Login
                     </button>

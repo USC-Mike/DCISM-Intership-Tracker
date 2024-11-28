@@ -1,69 +1,5 @@
 <?php
 session_start();
-include(__DIR__ . '/.././src/config/db.php'); // Adjust path based on your folder structure
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Extract data from POST request
-    $role = $_POST['role'] ?? '';
-    $fullName = $_POST['full-name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm-password'] ?? '';
-
-    // Validate inputs
-    if (empty($role) || empty($fullName) || empty($email) || empty($password) || empty($confirmPassword)) {
-        $_SESSION['error'] = 'All fields are required.';
-        header('Location: register.php');
-        exit();
-    }
-
-    if ($password !== $confirmPassword) {
-        $_SESSION['error'] = 'Passwords do not match.';
-        header('Location: register.php');
-        exit();
-    }
-
-    // Hash the password
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // Select table based on role
-    $table = ($role === 'coordinator') ? 'coordinators' : 'students';
-
-    // Check if user already exists
-    $checkQuery = "SELECT * FROM $table WHERE email = ?";
-    $stmt = $conn->prepare($checkQuery);
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $_SESSION['error'] = 'Account already exists with this email.';
-        header('Location: register.php');
-        exit();
-    }
-
-    // Insert new user into the database
-    if ($role === 'student') {
-        $yearLevel = $_POST['year-level'] ?? '';
-        $course = $_POST['course'] ?? '';
-        $insertQuery = "INSERT INTO students (full_name, email, password, year_level, course) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param('sssss', $fullName, $email, $hashedPassword, $yearLevel, $course);
-    } else {
-        $department = $_POST['department'] ?? '';
-        $insertQuery = "INSERT INTO coordinators (full_name, email, password, department) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param('ssss', $fullName, $email, $hashedPassword, $department);
-    }
-
-    if ($stmt->execute()) {
-        $_SESSION['success'] = 'Registration successful. You can now login.';
-        header('Location: login.php');
-    } else {
-        $_SESSION['error'] = 'Registration failed. Please try again.';
-        header('Location: register.php');
-    }
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -85,6 +21,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
             <h1 class="text-2xl font-semibold text-center text-blue-500 mb-4">Create an Account</h1>
 
+            <!-- Notification Section -->
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                    <span class="block sm:inline"><?php echo $_SESSION['error']; ?></span>
+                </div>
+                <?php unset($_SESSION['error']); ?>
+            <?php elseif (isset($_SESSION['success'])): ?>
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                    <span class="block sm:inline"><?php echo $_SESSION['success']; ?></span>
+                </div>
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <!-- Registration Form -->
+            <form method="POST"  action="../src/controllers/authcontroller.php">
+                
             <!-- Role Selector -->
             <div class="mb-4">
                 <label for="role" class="block text-gray-700 font-medium">Role</label>
@@ -94,25 +46,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
 
-            <!-- Registration Form -->
-            <form method="POST">
                 <!-- Common Fields -->
                 <div id="common-fields">
                     <div class="mb-4">
                         <label for="full-name" class="block text-gray-700 font-medium">Full Name</label>
-                        <input type="text" id="full-name" name="full-name" placeholder="Enter your full name" class="mt-2 w-full p-2 border rounded-md">
+                        <input type="text" id="full-name" name="full-name" placeholder="Enter your full name" class="mt-2 w-full p-2 border rounded-md" required>
                     </div>
                     <div class="mb-4">
                         <label for="email" class="block text-gray-700 font-medium">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" class="mt-2 w-full p-2 border rounded-md">
+                        <input type="email" id="email" name="email" placeholder="Enter your email" class="mt-2 w-full p-2 border rounded-md" required>
                     </div>
                     <div class="mb-4">
                         <label for="password" class="block text-gray-700 font-medium">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Create a password" class="mt-2 w-full p-2 border rounded-md">
+                        <input type="password" id="password" name="password" placeholder="Create a password" class="mt-2 w-full p-2 border rounded-md" required>
                     </div>
                     <div class="mb-4">
                         <label for="confirm-password" class="block text-gray-700 font-medium">Confirm Password</label>
-                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" class="mt-2 w-full p-2 border rounded-md">
+                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" class="mt-2 w-full p-2 border rounded-md" required>
                     </div>
                 </div>
 
@@ -146,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <!-- Register Button -->
-                <button type="submit" class="w-full bg-blue-500 text-white p-3 rounded-md font-medium hover:bg-blue-600">Register</button>
+                <button type="submit" name="register" class="w-full bg-blue-500 text-white p-3 rounded-md font-medium hover:bg-blue-600">Register</button>
             </form>
 
             <!-- Footer Section -->
