@@ -19,15 +19,6 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
     <!-- Tailwind CSS file -->
     <link rel="stylesheet" href="../assets/css/output.css">
     <title>Student - Dashboard</title>
-    <style>
-        /* Ensure smooth transition for sidebar */
-        #sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-        #content.collapsed {
-            margin-left: 0;
-        }
-    </style>
 </head>
 <body class="bg-gray-100 font-lato">
 
@@ -41,7 +32,7 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
             <div class="flex items-center gap-6">
                 <div class="relative">
                     <!-- Bell icon with link to notifications page -->
-                    <a href="S-Notif.html">
+                    <a href="notifications.php">
                         <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
                     </a>
                     <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
@@ -63,17 +54,17 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
         <aside class="bg-white w-full md:w-1/4 lg:w-2/12 h-auto md:h-full p-4 rounded-lg shadow-lg">
             <ul class="space-y-4">
                 <li>
-                    <a href="S-Dash.html" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="dashboard.php" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-home"></i> Home
                     </a>
                 </li>
                 <li>
-                    <a href="S-Checklist.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="checklist.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-line-chart"></i> Checklist
                     </a>
                 </li>
                 <li>
-                    <a href="S-Reports.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="reports.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-paper-plane"></i> Reports
                     </a>
                 </li>
@@ -83,7 +74,7 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
                     </a>
                 </li>
                 <li>
-                    <a href="S-Profile.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="profile.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-user"></i> Profile
                     </a>
                 </li>
