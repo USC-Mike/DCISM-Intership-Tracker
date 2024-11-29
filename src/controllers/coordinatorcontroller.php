@@ -10,6 +10,9 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Get the user ID from session
+$userId = $_SESSION['user_id'];
+
 // Check database connection
 if (!isset($pdo)) {
     die('Database connection failed.');
@@ -84,6 +87,65 @@ function fetchStudents($filters = []) {
     }   
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'approve') {
+    $reportId = $_POST['report_id'];
+    
+    // Update the report status to "Approved"
+    $query = "UPDATE reports SET status = 'Approved' WHERE id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id', $reportId);
+    $stmt->execute();
+    
+    // Redirect back to the report management page
+    header('Location: report_management.php');
+    exit();
+}
+
+// student management side
+// Function to fetch reports
+function fetchReports($filters = []) {
+    global $pdo;
+
+    // Base query for reports
+    $query = "SELECT reports.id, students.full_name, reports.date, reports.hours_worked, reports.work_description, reports.report_status
+              FROM reports
+              JOIN students ON reports.user_id = students.id";
+    $conditions = [];
+    $params = [];
+
+    // Apply filters if any
+    if (!empty($filters['search'])) {
+        $search = "%" . $filters['search'] . "%";
+        $conditions[] = "(students.full_name LIKE ? OR students.id LIKE ? OR students.company_name LIKE ?)";
+        $params[] = $search;
+        $params[] = $search;
+        $params[] = $search;
+    }
+
+    if (!empty($filters['date'])) {
+        $conditions[] = "reports.date = ?";
+        $params[] = $filters['date'];
+    }
+
+    if (!empty($filters['report_status'])) {
+        $conditions[] = "reports.report_status = ?";
+        $params[] = $filters['status'];
+    }
+
+    // Combine base query with conditions
+    if (count($conditions) > 0) {
+        $query .= " WHERE " . implode(" AND ", $conditions);
+    }
+
+    // Prepare and execute query
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+
+    // Fetch all reports
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Student Mngmt
 // Handle status update
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && isset($_GET['status'])) {
     $studentId = $_GET['id'];
@@ -102,6 +164,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && isset($_GET['s
     }
 }
 
+// Student Mngmt
+// Handle GET request to fetch reports
+$filters = [];
+
+if (isset($_GET['search'])) {
+    $filters['search'] = $_GET['search'];
+}
+
+if (isset($_GET['date'])) {
+    $filters['date'] = $_GET['date'];
+}
+
+if (isset($_GET['report_status'])) {
+    $filters['status'] = $_GET['report_status'];
+}
+// Student Mngmt
+// Fetch reports based on filters
+$reports = fetchReports($filters);
+// Student Mngmt
 // Fetch filters from GET request
 $filters = [
     'search' => $_GET['search'] ?? null,
@@ -110,6 +191,106 @@ $filters = [
     'company' => $_GET['company'] ?? null,
 ];
 
+// Student Mngmt
 // Fetch students based on filters
 $students = fetchStudents($filters);
 
+// report management side
+// Function to fetch reports
+function fetchStudentReports($filters = []) {
+    global $pdo;
+
+    // Base query for reports
+    $query = "SELECT reports.id, students.full_name, reports.date, students.required_hours, reports.hours_worked,
+    (reports.hours_worked / students.required_hours) * 100 AS progress_percentage, 
+     reports.work_description, reports.report_status, reports.report_type
+              FROM reports
+              JOIN students ON reports.user_id = students.id";
+    $conditions = [];
+    $params = [];
+
+    // Apply filters if any
+    if (!empty($filters['search'])) {
+        $search = "%" . $filters['search'] . "%";
+        $conditions[] = "(students.full_name LIKE ? OR students.id LIKE ? OR students.company_name LIKE ?)";
+        $params[] = $search;
+        $params[] = $search;
+        $params[] = $search;
+    }
+
+    if (!empty($filters['date'])) {
+        $conditions[] = "reports.date = ?";
+        $params[] = $filters['date'];
+    }
+
+    if (!empty($filters['report_status'])) {
+        $conditions[] = "reports.report_status = ?";
+        $params[] = $filters['report_status'];
+    }
+
+    if (!empty($filters['report_type'])) {
+        $conditions[] = "reports.report_type = ?";
+        $params[] = $filters['report_type'];
+    }
+
+    // Combine base query with conditions
+    if (count($conditions) > 0) {
+        $query .= " WHERE " . implode(" AND ", $conditions);
+    }
+
+    // Prepare and execute query
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+
+    // Fetch all reports
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// report Mngmt
+// Handle status update
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && isset($_GET['report_status'])) {
+    $studentId = $_GET['id'];
+    $newStatus = $_GET['report_status'];
+
+    // Validate the status
+    $validStatuses = ['Pending', 'Approved', 'Rejected'];
+    if (in_array($newStatus, $validStatuses)) {
+        // Update the student's status in the database
+        $stmt = $pdo->prepare("UPDATE reports SET report_status = ? WHERE id = ?");
+        $stmt->execute([$newStatus, $studentId]);
+
+        // Redirect back to the report management page after the update
+        header("Location: report_management.php?status_update_success=1");
+        exit();
+    }
+}
+
+
+// Handle GET request to fetch reports
+$filters = [];
+
+if (isset($_GET['search'])) {
+    $filters['search'] = $_GET['search'];
+}
+
+if (isset($_GET['date'])) {
+    $filters['date'] = $_GET['date'];
+}
+
+if (isset($_GET['report_status'])) {
+    $filters['report_status'] = $_GET['report_status'];
+}
+
+if (isset($_GET['report_type'])) {
+    $filters['report_type'] = $_GET['report_type'];
+}
+
+// Fetch filters from GET request
+$filters = [
+    'search' => $_GET['search'] ?? null,
+    'date' => $_GET['date'] ?? null,
+    'report_type' => $_GET['report_type'] ?? null,
+    'report_status' => $_GET['report_status'] ?? null,
+];
+
+$reportsq = fetchStudentReports($filters);

@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $_SESSION['user_id'];
 
             $stmt = $pdo->prepare("UPDATE students SET company_name = ?, supervisor_name = ?, company_address = ?, company_email = ?, supervisor_contact = ?, work_schedule = ? WHERE id = ?");
-            $stmt->execute([$companyName, $supervisorName, $companyAddress, $companyEmail, $supervisorContact , $workschedule, $userId]);
+            $stmt->execute([$companyName, $supervisorName, $companyAddress, $companyEmail, $supervisorContact , $userId]);
 
             // Redirect with success
             header("Location: ../../public/student/profile.php?company_success=1");
