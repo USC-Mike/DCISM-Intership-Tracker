@@ -52,30 +52,30 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">
         <!-- Sidebar -->
-        <aside class="bg-white w-full md:w-1/4 lg:w-1/5 h-auto md:h-full p-4 rounded-lg shadow-lg">
+        <aside class="bg-white w-full md:w-1/4 lg:w-2/12 h-auto md:h-full p-4 rounded-lg shadow-lg">
             <ul class="space-y-4">
                 <li>
-                    <a href="S-Dash.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="dashboard.php" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-home"></i> Home
                     </a>
                 </li>
                 <li>
-                    <a href="S-Checklist.html" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="checklist.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-line-chart"></i> Checklist
                     </a>
                 </li>
                 <li>
-                    <a href="S-Reports.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="reports.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-paper-plane"></i> Reports
                     </a>
                 </li>
                 <li>
-                    <a href="S-Eval.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
-                        <i class="bx bx-notification"></i> Evaluation
+                    <a href="report_templates.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                        <i class="bx bx-file"></i> Report Templates 
                     </a>
                 </li>
                 <li>
-                    <a href="S-Profile.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="profile.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-user"></i> Profile
                     </a>
                 </li>
@@ -89,44 +89,6 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
 
         <!-- Dashboard Content -->
         <section class="flex-1 md:ml-6 space-y-6">
-            <!-- Document Checklist -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-semibold mb-4">Document Checklist</h2>
-                <p class="text-gray-600 mb-6">Below is the list of required documents and their submission statuses. Click "Upload" to submit your files.</p>
-                <div class="space-y-4">
-                    <!-- Checklist Item -->
-                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
-                        <div>
-                            <h3 class="text-lg font-semibold">MOA (Memorandum of Agreement)</h3>
-                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
-                        </div>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                            Upload
-                        </button>
-                    </div>
-                    <!-- Checklist Item -->
-                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
-                        <div>
-                            <h3 class="text-lg font-semibold">Daily Report</h3>
-                            <p class="text-sm text-gray-500">Status: <span class="text-green-500 font-medium">Submitted</span></p>
-                        </div>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                            Upload
-                        </button>
-                    </div>
-                    <!-- Checklist Item -->
-                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
-                        <div>
-                            <h3 class="text-lg font-semibold">Weekly Report</h3>
-                            <p class="text-sm text-gray-500">Status: <span class="text-red-500 font-medium">Rejected</span></p>
-                        </div>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                            Upload
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Submission Guidelines -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-semibold mb-4">Submission Guidelines</h2>
@@ -136,6 +98,104 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
                     <li>Deadlines are strictly enforced; submit on or before the due date.</li>
                 </ul>
             </div>
+            <!-- Document Checklist -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4">Document Checklist</h2>
+                <p class="text-gray-600 mb-6">Below is the list of required documents and their submission statuses. Click "Upload" to submit your files.</p>
+                <div class="space-y-4">
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Personal and Work Information Document</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Curriculum Vitae</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Parent's Consent (Signed by parent or guardian)</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Endorsement Letter</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Company MOA (Memorandum of Agreement for Company)</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Student MOA (Memorandum of Agreement for Student)</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-yellow-500 font-medium">Pending</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">Final OJT Report</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-red-500 font-medium">Rejected</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">OJT Performance Evaluation (1st)</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-red-500 font-medium">Rejected</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                    <!-- Checklist Item -->
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <div>
+                            <h3 class="text-lg font-semibold">OJT Performance Evaluation (2nd)</h3>
+                            <p class="text-sm text-gray-500">Status: <span class="text-red-500 font-medium">Rejected</span></p>
+                        </div>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </section>
     </main>
 </body>

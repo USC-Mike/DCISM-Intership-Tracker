@@ -17,7 +17,7 @@ if (!isset($pdo)) {
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
 // Fetch student details
 $userId = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT full_name, mobile, email, company_name, supervisor_name, company_address, company_email 
+$stmt = $pdo->prepare("SELECT full_name, mobile, email, course, schoolyear, coordinator, work_schedule, company_name, supervisor_name, company_address, company_email, supervisor_contact
         FROM students WHERE id = ?");
 $stmt->execute([$userId]);
 $student = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -69,30 +69,30 @@ if (!$student) {
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">
         <!-- Sidebar -->
-        <aside class="bg-white w-full md:w-1/4 lg:w-1/5 h-auto md:h-full p-4 rounded-lg shadow-lg">
+        <aside class="bg-white w-full md:w-1/4 lg:w-2/12 h-auto md:h-full p-4 rounded-lg shadow-lg">
             <ul class="space-y-4">
                 <li>
-                    <a href="S-Dash.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="dashboard.php" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-home"></i> Home
                     </a>
                 </li>
                 <li>
-                    <a href="S-Checklist.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="checklist.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-line-chart"></i> Checklist
                     </a>
                 </li>
                 <li>
-                    <a href="S-Reports.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="reports.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-paper-plane"></i> Reports
                     </a>
                 </li>
                 <li>
-                    <a href="S-Eval.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
-                        <i class="bx bx-notification"></i> Evaluation
+                    <a href="report_templates.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                        <i class="bx bx-file"></i> Report Templates 
                     </a>
                 </li>
                 <li>
-                    <a href="S-Profile.html" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="profile.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-user"></i> Profile
                     </a>
                 </li>
@@ -144,6 +144,18 @@ if (!$student) {
                             <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
                             <input type="email" id="email" name="email" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['email']); ?>" required>
                         </div>
+                        <div>
+                            <label for="course" class="block text-gray-700 font-medium mb-2">Course</label>
+                            <input type="text" id="course" name="course" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['course']); ?>" required>
+                        </div>
+                        <div>
+                            <label for="schoolyear" class="block text-gray-700 font-medium mb-2">School Year</label>
+                            <input type="text" id="schoolyear" name="schoolyear" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['schoolyear']); ?>" required>
+                        </div>
+                        <div>
+                            <label for="coordinator" class="block text-gray-700 font-medium mb-2">Coordinator</label>
+                            <input type="text" id="coordinator" name="coordinator" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['coordinator']); ?>" required>
+                        </div>
                     </div>
                     <button name="userinfo" class="mt-6 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
                         Save Changes
@@ -161,10 +173,7 @@ if (!$student) {
                             <label for="company_name" class="block text-gray-700 font-medium mb-2">Company Name</label>
                             <input type="text" id="company_name" name="company_name" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['company_name']); ?>" required>
                         </div>
-                        <div>
-                            <label for="supervisor_name" class="block text-gray-700 font-medium mb-2">Supervisor Name</label>
-                            <input type="text" id="supervisor_name" name="supervisor_name" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['supervisor_name']); ?>" required>
-                        </div>
+                        
                         <div>
                             <label for="company_address" class="block text-gray-700 font-medium mb-2">Company Address</label>
                             <input type="text" id="company_address" name="company_address" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['company_address']); ?>" required>
@@ -172,6 +181,21 @@ if (!$student) {
                         <div>
                             <label for="company_email" class="block text-gray-700 font-medium mb-2">Company Email</label>
                             <input type="email" id="company_email" name="company_email" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['company_email']); ?>" required>
+                        </div>
+
+                        <div>
+                            <label for="supervisor_name" class="block text-gray-700 font-medium mb-2">Supervisor Name</label>
+                            <input type="text" id="supervisor_name" name="supervisor_name" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['supervisor_name']); ?>" required>
+                        </div>
+
+                        <div>
+                            <label for="supervisor_contact" class="block text-gray-700 font-medium mb-2">Supervisor Contact</label>
+                            <input type="text" id="supervisor_contact" name="supervisor_contact" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['supervisor_contact']); ?>" required>
+                        </div>
+
+                        <div>
+                            <label for="work_schedule" class="block text-gray-700 font-medium mb-2">Work Schedule</label>
+                            <input type="text" id="work_schedule" name="work_schedule" class="w-full p-3 border rounded-lg" value="<?php echo htmlspecialchars($student['work_schedule']); ?>" required>
                         </div>
                     </div>
                     <button name="companyinfo" class="mt-6 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">

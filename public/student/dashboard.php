@@ -69,8 +69,8 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
                     </a>
                 </li>
                 <li>
-                    <a href="S-Eval.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
-                        <i class="bx bx-notification"></i> Evaluation
+                    <a href="report_templates.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                        <i class="bx bx-file"></i> Report Templates 
                     </a>
                 </li>
                 <li>

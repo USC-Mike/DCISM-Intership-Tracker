@@ -6,6 +6,32 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+} else {
+    // Handle case where user is not logged in or session expired
+    echo "User not logged in.";
+    exit();
+}
+
+// Include the database connection
+require_once '../../src/config/db.php'; // Adjust the path as needed
+
+// Fetch reports for the logged-in user
+$reports = [];
+$stmt = $pdo->prepare("SELECT * FROM reports WHERE user_id = :user_id");
+$stmt->execute(['user_id' => $userId]);
+
+if ($stmt->rowCount() > 0) {
+    $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+//var_dump($reports); // Debugging statement to ensure reports are retrieved correctly
+
+
+// var_dump($_SESSION['user_id']); // Debugging session variable
+
+
 // Display full name
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
 ?>
@@ -52,30 +78,30 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">
         <!-- Sidebar -->
-        <aside class="bg-white w-full md:w-1/4 lg:w-1/5 h-auto md:h-full p-4 rounded-lg shadow-lg">
+        <aside class="bg-white w-full md:w-1/4 lg:w-2/12 h-auto md:h-full p-4 rounded-lg shadow-lg">
             <ul class="space-y-4">
                 <li>
-                    <a href="S-Dash.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="dashboard.php" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-home"></i> Home
                     </a>
                 </li>
                 <li>
-                    <a href="S-Checklist.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="checklist.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-line-chart"></i> Checklist
                     </a>
                 </li>
                 <li>
-                    <a href="S-Reports.html" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="reports.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-paper-plane"></i> Reports
                     </a>
                 </li>
                 <li>
-                    <a href="S-Eval.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
-                        <i class="bx bx-notification"></i> Evaluation
+                    <a href="report_templates.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                        <i class="bx bx-file"></i> Report Templates 
                     </a>
                 </li>
                 <li>
-                    <a href="S-Profile.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="profile.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-user"></i> Profile
                     </a>
                 </li>
@@ -143,20 +169,22 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
             <div>
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Previously Submitted Reports</h3>
                 <ul class="bg-white p-4 rounded-lg shadow-md space-y-2">
-                    <?php if (!empty($reports)): ?>
-                    <?php foreach ($reports as $report): ?>
-                        <li class="flex justify-between border-b pb-2">
-                            <span class="text-gray-600">
-                                <?= ucfirst($report['report_type']) ?> Report - 
-                                <?= htmlspecialchars($report['report_type'] === 'weekly' ? 'Week ' . $report['week_number'] : $report['date']) ?>
-                            </span>
-                            <span><?= htmlspecialchars($report['submitted_at']) ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                    <?php else: ?>
-                        <li class="text-gray-600">No reports submitted yet.</li>
-                    <?php endif; ?>
-                </ul>
+                <?php if (!empty($reports)): ?>
+                <?php foreach ($reports as $report): ?>
+                    <li class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">
+                            <?= ucfirst($report['report_type']) ?> Report - 
+                            <?= htmlspecialchars($report['report_type'] === 'weekly' ? 'Week ' . $report['week_number'] : $report['date']) ?>
+                        </span>
+                        <span>
+                            <?= !empty($report['submitted_at']) ? date('Y-m-d H:i:s', strtotime($report['submitted_at'])) : 'N/A' ?>
+                        </span>
+                    </li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li class="text-gray-600">No reports submitted yet.</li>
+            <?php endif; ?>
+            </ul>
             </div>
         </section>
     </main>

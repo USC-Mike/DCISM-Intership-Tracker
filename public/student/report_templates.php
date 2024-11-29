@@ -1,14 +1,3 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
-    exit();
-}
-
-// Display full name
-$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,13 +7,7 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <!-- Tailwind CSS file -->
     <link rel="stylesheet" href="../assets/css/output.css">
-    <title>Student - Notifications</title>
-    <script>
-        // Function to remove a notification when "Mark as Read" is clicked
-        function markAsRead(notification) {
-            notification.remove(); // Remove the notification from the DOM
-        }
-    </script>
+    <title>Student - Report Templates</title>
 </head>
 <body class="bg-gray-100 font-lato">
 
@@ -32,15 +15,12 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="flex items-center justify-between px-6 py-4">
             <div class="flex items-center gap-4">
-                <img src="./images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
-                <h1 class="text-2xl font-semibold text-blue-500">Internship Tracker</h1>
+                <img src="./images/ces-logo.png" alt="Logo" class="h-10 w-auto">
+                <h1 class="text-2xl font-semibold text-blue-500">OJT Tracker</h1>
             </div>
             <div class="flex items-center gap-6">
                 <div class="relative">
-                    <!-- Bell icon with link to notifications page -->
-                    <a href="S-Notif.html">
-                        <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
-                    </a>
+                    <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
                     <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
                 </div>
                 <div class="relative group">
@@ -92,44 +72,53 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
             </ul>
         </aside>
 
-        <!-- Notifications Content -->
+        <!-- Dashboard Content -->
         <section class="flex-1 md:ml-6 space-y-6">
-            <h2 class="text-xl font-semibold text-gray-800">Notifications</h2>
-
-            <!-- Notification List -->
-            <div class="space-y-4">
-                <!-- Notification 1 -->
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-800">OJT Report Deadline Approaching</h3>
-                        <p class="text-sm text-gray-600">Your OJT report submission deadline is approaching. Submit it by the end of the week.</p>
-                        <p class="text-xs text-gray-500 mt-1">Due: 12/15/2024</p>
-                    </div>
-                    <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
+            <!-- Report Templates Section -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-3xl font-semibold text-blue-600">Report Templates</h2>
+                <p class="mt-2 text-gray-700">You can download any available report template needed for your progress tracking.</p>
+                
+                <!-- Search Bar -->
+                <div class="mt-4 mb-6 flex justify-between items-center">
+                    <input type="text" placeholder="Search Templates..." class="w-full p-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <!-- Notification 2 -->
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-800">Evaluation Submitted</h3>
-                        <p class="text-sm text-gray-600">Your evaluation for OJT has been successfully submitted. Thank you for completing it.</p>
-                        <p class="text-xs text-gray-500 mt-1">Date: 11/20/2024</p>
-                    </div>
-                    <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
-                </div>
-
-                <!-- Notification 3 -->
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-800">Final Report Submission Reminder</h3>
-                        <p class="text-sm text-gray-600">Reminder: Your final report is due by 12/30/2024. Please upload it before the deadline.</p>
-                        <p class="text-xs text-gray-500 mt-1">Due: 12/30/2024</p>
-                    </div>
-                    <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
+                
+                <!-- Templates Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-auto text-gray-700">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-3 text-left">Template Name</th>
+                                <th class="p-3 text-left">Template Type</th>
+                                <th class="p-3 text-left">Description</th>
+                                <th class="p-3 text-left">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="p-3">Annual Report</td>
+                                <td class="p-3">PDF</td>
+                                <td class="p-3">Used for the annual project progress report.</td>
+                                <td class="p-3"><button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Download</button></td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="p-3">Monthly Progress Report</td>
+                                <td class="p-3">Excel</td>
+                                <td class="p-3">Used for monthly progress tracking and updates.</td>
+                                <td class="p-3"><button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Download</button></td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="p-3">Evaluation Report</td>
+                                <td class="p-3">Word</td>
+                                <td class="p-3">Used for submitting evaluation of the project.</td>
+                                <td class="p-3"><button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Download</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
     </main>
-
 </body>
 </html>
