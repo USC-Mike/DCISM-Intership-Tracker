@@ -1,3 +1,32 @@
+
+<?php
+session_start();
+include(__DIR__ . '/../../src/config/db.php');; // Adjust path based on your folder structure
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../public/login.php');
+    exit();
+}
+
+// Check if PDO connection is set
+if (!isset($pdo)) {
+    die('Database connection failed.');
+}
+
+// Display full name
+$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+// Fetch student details
+$userId = $_SESSION['user_id'];
+$stmt = $pdo->prepare("SELECT full_name, email, course_coordinator, department
+        FROM coordinators WHERE id = ?");
+$stmt->execute([$userId]);
+$student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$student) {
+    die("Coordinator details not found.");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,29 +107,39 @@
 
         <!-- Settings Content -->
         <section class="flex-1 md:ml-6 space-y-6">
+
+        <!-- Notification Section -->
+        <?php if (isset($_GET['personal_success'])): ?>
+            <div class="bg-green-100 text-green-700 p-4 rounded-lg mb-4">
+                Personal information updated successfully.
+            </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error'])): ?>
+                <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
+                    An error occurred. Please try again.
+                </div>
+            <?php endif; ?>
             <!-- Coordinator Profile Section -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-lg font-semibold text-gray-700">Coordinator Profile</h2>
-                <form action="#" method="post" class="space-y-4 mt-4">
+                <form method="POST" class="space-y-4 mt-4" action="../../src/controllers/coordinatorcontroller.php">
                     <div class="flex gap-4">
                         <div class="w-1/2">
-                            <label for="name" class="block text-sm text-gray-600">Name</label>
-                            <input type="text" id="name" name="name" class="w-full px-4 py-2 border rounded-lg" placeholder="John Doe">
+                            <label for="full_name" class="block text-sm text-gray-600">Name</label>
+                            <input type="text" id="full_name" name="full_name" class="w-full px-4 py-2 border rounded-lg" value="<?php echo htmlspecialchars($student['full_name']); ?>" required>
                         </div>
                         <div class="w-1/2">
                             <label for="email" class="block text-sm text-gray-600">Email</label>
-                            <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg" placeholder="john.doe@example.com">
+                            <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg" value="<?php echo htmlspecialchars($student['email']); ?>" required>
                         </div>
                     </div>
                     <div>
-                        <label for="password" class="block text-sm text-gray-600">Password</label>
-                        <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg" placeholder="••••••••">
+                        <label for="coursecoordinator" class="block text-sm text-gray-600">Course Coordinator</label>
+                        <input type="text" id="coursecoordinator" name="coursecoordinator" class="w-full px-4 py-2 border rounded-lg" value="<?php echo htmlspecialchars($student['course_coordinator']); ?>" required>
                     </div>
-                    <div>
-                        <label for="profile-picture" class="block text-sm text-gray-600">Profile Picture</label>
-                        <input type="file" id="profile-picture" name="profile-picture" class="block mt-2">
-                    </div>
-                    <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save Changes</button>
+     
+                    <button type="submit" name="coordinatorinfo" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Save Changes</button>
                 </form>
             </div>
 

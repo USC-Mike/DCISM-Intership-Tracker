@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// Redirect to login page if the user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../public/login.php');
+    exit();
+}
+
+// Display full name, defaulting to "Guest" if not set
+$fullName = $_SESSION['full_name'] ?? 'Guest';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,15 +21,7 @@
     <!-- Tailwind CSS file -->
     <link rel="stylesheet" href="../assets/css/output.css">
     <title>Coordinator Dashboard</title>
-    <style>
-        /* Ensure smooth transition for sidebar */
-        #sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-        #content.collapsed {
-            margin-left: 0;
-        }
-    </style>
+
 </head>
 <body class="bg-gray-100 font-lato">
 
@@ -49,22 +54,22 @@
         <aside class="bg-white w-full md:w-1/4 lg:w-1/5 h-auto md:h-full p-4 rounded-lg shadow-lg">
             <ul class="space-y-4">
                 <li>
-                    <a href="C-Dash.html" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="dashboard.php" class="flex items-center gap-4 text-blue-500 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-home text-lg"></i> Home
                     </a>
                 </li>
                 <li>
-                    <a href="C-StudMgnt.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="student_management.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-group text-lg"></i> Student Management
                     </a>
                 </li>
                 <li>
-                    <a href="C-DocsMgnt.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="document_management.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-file text-lg"></i> Document Management
                     </a>
                 </li>
                 <li>
-                    <a href="C-ReportMgnt.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="report_management.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-task text-lg"></i> Report Management
                     </a>
                 </li>
@@ -74,7 +79,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="C-Profile.html" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
+                    <a href="profile.php" class="flex items-center gap-4 text-gray-700 text-lg p-2 hover:bg-gray-200 rounded-lg">
                         <i class="bx bx-user text-lg"></i> Profile
                     </a>
                 </li>
@@ -90,7 +95,7 @@
         <section class="flex-1 md:ml-6 space-y-6">
             <!-- Summary Cards -->
 
-            <h1 class="text-2xl font-semibold text-blue-700">Welcome back coordinator, John Doe</h1>
+            <h1 class="text-2xl font-semibold text-blue-700">Welcome back, <?php echo htmlspecialchars($fullName); ?>!</h1>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-lg shadow-lg flex items-center gap-4">
                     <i class="bx bx-group text-blue-500 text-4xl"></i>
