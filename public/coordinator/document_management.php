@@ -1,3 +1,9 @@
+<?php
+require_once '../../src/controllers/coordinatorcontroller.php';
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,57 +85,61 @@
         <section class="flex-1 md:ml-6 space-y-6">
             <!-- Pending Documents Section -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-xl font-semibold text-gray-700">Pending Documents</h2>
-                <table class="w-full mt-4 table-auto">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Submission Date</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Status</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">John Doe</td>
-                            <td class="px-4 py-2">Project Report</td>
-                            <td class="px-4 py-2">2024-11-01</td>
-                            <td class="px-4 py-2 text-yellow-500">Pending</td>
-                            <td class="px-4 py-2">
-                                <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
-                                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ml-2" onclick="openModal()">View</button>
-                            </td>
-                        </tr>
-                        <!-- More rows can be added dynamically -->
-                    </tbody>
-                </table>
-            </div>
+    <h2 class="text-xl font-semibold text-gray-700">Pending Documents</h2>
+    <table class="w-full mt-4 table-auto">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Submission Date</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($pendingDocuments as $doc): ?>
+                <tr class="border-b">
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                    <td class="px-4 py-2">
+                        <form method="POST" action="" class="inline">
+                            <input type="hidden" name="document_id" value="<?= $doc['id'] ?>">
+                            <button type="submit" name="action" value="approve" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
+                            <button type="submit" name="action" value="reject" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
+                        </form>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ml-2" 
+                            onclick="openDocumentViewer('<?= htmlspecialchars($doc['document_path']) ?>')">View</button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
 
             <!-- Approved Documents Section -->
             <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
-                <h2 class="text-xl font-semibold text-gray-700">Approved Documents</h2>
-                <table class="w-full mt-4 table-auto">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Status</th>
-                            <th class="px-4 py-2 text-left text-sm text-gray-600">Approval Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">Jane Smith</td>
-                            <td class="px-4 py-2">Internship Evaluation</td>
-                            <td class="px-4 py-2 text-green-500">Approved</td>
-                            <td class="px-4 py-2">2024-10-25</td>
-                        </tr>
-                        <!-- More rows can be added dynamically -->
-                    </tbody>
-                </table>
-            </div>
+    <h2 class="text-xl font-semibold text-gray-700">Approved Documents</h2>
+    <table class="w-full mt-4 table-auto">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Approval Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($approvedDocuments as $doc): ?>
+                <tr class="border-b">
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
 
             <!-- Document Viewer Modal (hidden by default) -->
             <div id="documentViewerModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">

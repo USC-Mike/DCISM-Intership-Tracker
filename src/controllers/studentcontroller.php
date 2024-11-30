@@ -102,3 +102,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+
+
+// Fetch all documents for a student by their ID.
+
+function fetchStudentDocuments($studentId) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("SELECT document_type, document_status FROM documents WHERE student_id = ?");
+        $stmt->execute([$studentId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error fetching documents: " . $e->getMessage();
+        return [];
+    }
+}
+
+// Handle document uploads.
+ 
+function uploadDocument($studentId, $documentType, $file) {
+    global $pdo;
+
+    try {
+        $uploadDir = __DIR__ . '/../../storage/documents/';
+        $fileName = basename($file['name']);
+        $targetFilePath = $uploadDir . $fileName;
+
+        // Validate file type
+        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+        if (strtolower($fileType) !== 'pdf') {
+            throw new Exception("Only PDF files are allowed.");
+        }
+
+        // Move uploaded file to storage directory
+        if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+            // Insert document into the database
+            $stmt = $pdo->prepare("INSERT INTO documents (student_id, document_name, document_type, document_path, document_status)
+                                   VALUES (?, ?, ?, ?, 'Pending')");
+            $stmt->execute([$studentId, $fileName, $documentType, $targetFilePath]);
+            return ['success' => true];
+        } else {
+            throw new Exception("Failed to upload file.");
+        }
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
+    $studentId = $_SESSION['user_id']; // Current student ID
+    $documentType = $_POST['document_type']; // Document type
+    $file = $_FILES['document']; // Uploaded file
+
+    // Call the uploadDocument function from the controller
+    $uploadResult = uploadDocument($studentId, $documentType, $file);
+
+    // Redirect back with success or error messages
+    if ($uploadResult['success']) {
+        header("Location: ../../public/student/checklist.php?upload_success=1");
+    } else {
+        header("Location: ../../public/student/checklist.php?upload_error=" . urlencode($uploadResult['message']));
+    }
+    exit();
+}
+
+
+// Define the list of required document types
+$documentTypes = [
+    'Personal & Work Plan',
+    'Curriculum Vitae',
+    'Parent’s Consent',
+    'Endorsement Letter',
+    'Company MOA',
+    'Student MOA',
+    'Final OJT Report',
+    'OJT Performance Evaluation (1st)',
+    'OJT Performance Evaluation (2nd)',
+];
+
+// Fetch the uploaded documents for the current student
+$documents = fetchStudentDocuments($_SESSION['user_id']);
