@@ -50,7 +50,7 @@ function fetchStudents($filters = []) {
 
     // Add conditions based on filters
     if (!empty($filters['search'])) {
-        $conditions[] = "(full_name LIKE ? OR student_id LIKE ? OR company_name LIKE ?)";
+        $conditions[] = "(full_name LIKE ? OR id LIKE ? OR company_name LIKE ?)";
         $params[] = '%' . $filters['search'] . '%';
         $params[] = '%' . $filters['search'] . '%';
         $params[] = '%' . $filters['search'] . '%';
@@ -201,9 +201,7 @@ function fetchStudentReports($filters = []) {
     global $pdo;
 
     // Base query for reports
-    $query = "SELECT reports.id, students.full_name, reports.date, students.required_hours, reports.hours_worked,
-    (reports.hours_worked / students.required_hours) * 100 AS progress_percentage, 
-     reports.work_description, reports.report_status, reports.report_type
+    $query = "SELECT reports.id, students.full_name, reports.date, reports.hours_worked, reports.work_description, reports.report_status, reports.report_type
               FROM reports
               JOIN students ON reports.user_id = students.id";
     $conditions = [];
@@ -294,3 +292,130 @@ $filters = [
 ];
 
 $reportsq = fetchStudentReports($filters);
+
+// FIle handling
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_FILES['document']) && $_FILES['document']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = '/../../storage/documents/';
+        $fileName = basename($_FILES['document']['name']);
+        $targetFilePath = $uploadDir . $fileName;
+
+        // Validate file type
+        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+        if ($fileType === 'pdf') {
+            if (move_uploaded_file($_FILES['document']['tmp_name'], $targetFilePath)) {
+                // Insert into the database
+                $studentId = $_POST['student_id']; // Replace with actual student ID
+                $documentName = $fileName;
+
+                $sql = "INSERT INTO documents (student_id, document_name, document_path, document_status)
+                        VALUES ('$studentId', '$documentName', '$targetFilePath', 'Pending')";
+                if ($db->query($sql)) {
+                    echo "Document uploaded successfully!";
+                } else {
+                    echo "Database error: " . $db->error;
+                }
+            } else {
+                echo "Failed to move uploaded file.";
+            }
+        } else {
+            echo "Only PDF files are allowed.";
+        }
+    } else {
+        echo "Error uploading file.";
+    }
+}
+
+// Fetch counts for dashboard
+// Fetch the number of active students
+try {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM students WHERE status = 'active'");
+    $stmt->execute();
+    $activeStudents = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching active students: " . $e->getMessage();
+    $activeStudents = 0;
+}
+
+// Fetch the number of pending documents
+try {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM documents WHERE document_status = 'Pending'");
+    $stmt->execute();
+    $pendingDocuments = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching pending documents: " . $e->getMessage();
+    $pendingDocuments = 0;
+}
+
+// Fetch the number of pending reports
+try {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM reports WHERE report_status = 'Pending'");
+    $stmt->execute();
+    $pendingReports = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching pending reports: " . $e->getMessage();
+    $pendingReports = 0;
+}
+
+// Send notification
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['send_notification'])) {
+        $recipient = $_POST['recipient'];
+        $message = $_POST['message'];
+        $senderId = $_SESSION['user_id']; // Coordinator ID
+
+        if (empty($message)) {
+            echo "Error: Message cannot be empty.";
+            exit();
+        }
+
+        $senderId = $_SESSION['user_id']; // Coordinator ID
+
+        try {
+            if ($recipient === 'all') {
+                // Notification for all students
+                $stmt = $pdo->prepare("INSERT INTO notifications (sender_id, message) VALUES (?, ?)");
+                $stmt->execute([$senderId, $message]);
+            } elseif ($recipient === 'specific') {
+                // Notification for a specific student
+                $recipientId = $_POST['student_id'] ?? null;
+
+                if (empty($recipientId)) {
+                    echo "Error: Student must be selected for specific notifications.";
+                    exit();
+                }
+
+                $stmt = $pdo->prepare("INSERT INTO notifications (recipient_id, sender_id, message) VALUES (?, ?, ?)");
+                $stmt->execute([$recipientId, $senderId, $message]);
+            }
+            header("Location: ../../public/coordinator/notifications.php?success=1");
+            exit();
+        } catch (PDOException $e) {
+            echo "Error sending notification: " . $e->getMessage();
+            exit();
+        }
+    }
+}
+
+// Fetch
+function fetchNotifications() {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT n.id, n.message, n.date_sent, 
+                   s.full_name AS recipient_name
+            FROM notifications n
+            LEFT JOIN students s ON n.recipient_id = s.id
+            ORDER BY n.date_sent DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error fetching notifications: " . $e->getMessage();
+        return [];
+    }
+}
+
+// Fetch notifications to use in the view
+$notifications = fetchNotifications();
