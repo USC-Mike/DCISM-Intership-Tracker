@@ -388,7 +388,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("INSERT INTO notifications (recipient_id, sender_id, message) VALUES (?, ?, ?)");
                 $stmt->execute([$recipientId, $senderId, $message]);
             }
-            header("Location: ../../public/coordinator/notifications.php?success=1");
+            header("Location: ../../public/coordinator/notifications.php?send_success=1");
             exit();
         } catch (PDOException $e) {
             echo "Error sending notification: " . $e->getMessage();
@@ -397,7 +397,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch
+// Fetch notifications
 function fetchNotifications() {
     global $pdo;
 
@@ -419,3 +419,42 @@ function fetchNotifications() {
 
 // Fetch notifications to use in the view
 $notifications = fetchNotifications();
+
+
+// Resend and delete functionality
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        $notificationId = $_POST['notification_id'];
+
+        if ($_POST['action'] === 'resend') {
+            try {
+                // Resend notification by duplicating it
+                $stmt = $pdo->prepare("
+                    INSERT INTO notifications (recipient_id, sender_id, message, date_sent)
+                    SELECT recipient_id, sender_id, message, NOW()
+                    FROM notifications
+                    WHERE id = ?
+                ");
+                $stmt->execute([$notificationId]);
+                header("Location: ../../public/coordinator/notifications.php?resend_success=1");
+                exit();
+            } catch (PDOException $e) {
+                echo "Error resending notification: " . $e->getMessage();
+                exit();
+            }
+        }
+
+        if ($_POST['action'] === 'delete') {
+            try {
+                // Delete notification
+                $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ?");
+                $stmt->execute([$notificationId]);
+                header("Location: ../../public/coordinator/notifications.php?delete_success=1");
+                exit();
+            } catch (PDOException $e) {
+                echo "Error deleting notification: " . $e->getMessage();
+                exit();
+            }
+        }
+    }
+}

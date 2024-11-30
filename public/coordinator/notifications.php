@@ -91,6 +91,15 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
         <!-- Dashboard Content -->
         <section class="flex-1 md:ml-6 space-y-6">
 
+        <?php if (isset($_GET['send_success'])): ?>
+            
+    <div class="bg-green-500 text-white p-4 rounded-md mb-4 flex items-center justify-between">
+        Notification sent successfully!
+        <!-- Close Button -->
+        <button class="text-white text-xl font-bold hover:text-gray-300" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<?php endif; ?>
+
             <!-- Send Notification Form -->
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-2xl font-semibold text-gray-700">Send Notification</h2>
@@ -121,7 +130,7 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
 
                     <div>
                         <label for="message" class="block text-gray-600">Message</label>
-                        <textarea name="message" id="message" rows="4" class="w-full p-3 border rounded-md" placeholder="Enter your notification content here..."></textarea>
+                        <textarea name="message" id="message" rows="4" class="w-full p-3 border rounded-md" placeholder="Enter your notification content here..." required></textarea>
                     </div>
 
 
@@ -130,6 +139,23 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
                     </div>
                 </form>
             </div>
+
+            <?php if (isset($_GET['resend_success'])): ?>
+    <div class="bg-green-500 text-white p-4 rounded-md mb-4 flex items-center justify-between">
+        Notification resent successfully!
+        <!-- Close Button -->
+        <button class="text-white text-xl font-bold hover:text-gray-300" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['delete_success'])): ?>
+    <div class="bg-red-500 text-white p-4 rounded-md mb-4 flex items-center justify-between">
+        Notification deleted successfully!
+        <!-- Close Button -->
+        <button class="text-white text-xl font-bold hover:text-gray-300" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<?php endif; ?>
+
 
             <!-- Notification History -->
             <div class="bg-white p-6 rounded-lg shadow-md">
@@ -151,9 +177,23 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
                         </p>
                     </div>
                     <div class="flex gap-4">
-                        <button class="px-4 py-2 bg-yellow-500 text-white rounded-md">Edit</button>
-                        <button class="px-4 py-2 bg-green-500 text-white rounded-md">Resend</button>
-                    </div>
+
+                    
+    <!-- Resend Button -->
+    <form method="POST" action="../../src/controllers/coordinatorcontroller.php" class="inline">
+        <input type="hidden" name="action" value="resend">
+        <input type="hidden" name="notification_id" value="<?= $notification['id'] ?>">
+        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Resend</button>
+    </form>
+
+    <!-- Delete Button -->
+    <form method="POST" action="../../src/controllers/coordinatorcontroller.php" class="inline">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="notification_id" value="<?= $notification['id'] ?>">
+        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md">Delete</button>
+    </form>
+</div>
+
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
