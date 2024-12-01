@@ -339,7 +339,7 @@ try {
 
 // Fetch the number of pending documents
 try {
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM documents WHERE document_status = 'Pending'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM documents WHERE document_status = 'For Approval'");
     $stmt->execute();
     $pendingDocuments = $stmt->fetchColumn();
 } catch (PDOException $e) {
@@ -591,3 +591,93 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+
+// Handle file view requests
+if (isset($_GET['document_id'])) {
+    $documentId = $_GET['document_id'];
+
+    try {
+        $stmt = $pdo->prepare("SELECT document_path, uploaded_file, document_name FROM documents WHERE id = ?");
+        $stmt->execute([$documentId]);
+        $document = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$document) {
+            throw new Exception("Document not found.");
+        }
+
+        // Serve file from file system
+        if (!empty($document['document_path']) && file_exists($document['document_path'])) {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . basename($document['document_path']) . '"');
+            readfile($document['document_path']);
+            exit();
+        }
+
+        // Serve BLOB content
+        if (!empty($document['document_content'])) {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . $document['document_name'] . '"');
+            echo $document['document_content'];
+            exit();
+        }
+
+        throw new Exception("Document source not found.");
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+        exit();
+    }
+}
+
+
+function fetchDocumentsWithFilters($filters = []) {
+    global $pdo;
+
+    $query = "SELECT d.id, d.student_id, s.full_name AS student_name, d.document_name, d.document_type, 
+                     d.document_status, d.date_uploaded, d.document_path
+              FROM documents d
+              JOIN students s ON d.student_id = s.id";
+    $conditions = [];
+    $params = [];
+
+    if (!empty($filters['search'])) {
+        $conditions[] = "s.full_name LIKE ?";
+        $params[] = '%' . $filters['search'] . '%';
+    }
+
+    if (!empty($filters['document_type'])) {
+        $conditions[] = "d.document_type = ?";
+        $params[] = $filters['document_type'];
+    }
+
+    if (!empty($filters['submission_date'])) {
+        $conditions[] = "DATE(d.date_uploaded) = ?";
+        $params[] = $filters['submission_date'];
+    }
+
+    if (!empty($filters['document_status'])) {
+        $conditions[] = "d.document_status = ?";
+        $params[] = $filters['document_status'];
+    }
+
+    if (count($conditions) > 0) {
+        $query .= " WHERE " . implode(" AND ", $conditions);
+    }
+
+    $query .= " ORDER BY d.date_uploaded DESC";
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+// Handle filters
+$filters = [
+    'search' => $_GET['search'] ?? null,
+    'document_type' => $_GET['document_type'] ?? null,
+    'submission_date' => $_GET['submission_date'] ?? null,
+    'document_status' => $_GET['document_status'] ?? null,
+];
+
+// Fetch documents based on filters
+$filteredDocuments = fetchDocumentsWithFilters($filters);

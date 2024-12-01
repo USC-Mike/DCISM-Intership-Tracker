@@ -1,6 +1,5 @@
 <?php
 require_once '../../src/controllers/coordinatorcontroller.php';
-
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +34,7 @@ require_once '../../src/controllers/coordinatorcontroller.php';
                 <div class="relative group">
                     <!-- Profile Icon -->
                     <a href="profile.php">
-                    <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
+                        <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
                     </a>
                 </div>
             </div>
@@ -82,126 +81,106 @@ require_once '../../src/controllers/coordinatorcontroller.php';
 
         <!-- Dashboard Content -->
         <section class="flex-1 md:ml-6 space-y-6">
+
+         <!-- Search and Filter Section -->
+         <form method="GET" action="document_management.php" class="bg-white p-4 rounded-lg shadow-lg mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by student name..." 
+                    class="flex-1 p-2 border rounded-lg" 
+                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                
+                <select name="document_type" class="p-2 border rounded-lg">
+                    <option value="">Filter by Document Type</option>
+                    <option value="Personal and Work Information Document" <?= isset($_GET['document_type']) && $_GET['document_type'] === 'Personal and Work Information Document' ? 'selected' : '' ?>>Personal and Work Information Document</option>
+                    <option value="Curriculum Vitae" <?= isset($_GET['document_type']) && $_GET['document_type'] === 'Curriculum Vitae' ? 'selected' : '' ?>>Curriculum Vitae</option>
+                    <option value="Endorsement Letter" <?= isset($_GET['document_type']) && $_GET['document_type'] === 'Endorsement Letter' ? 'selected' : '' ?>>Endorsement Letter</option>
+                    <option value="Company MOA" <?= isset($_GET['document_type']) && $_GET['document_type'] === 'Company MOA' ? 'selected' : '' ?>>Company MOA</option>
+                    <option value="Student MOA" <?= isset($_GET['document_type']) && $_GET['document_type'] === 'Student MOA' ? 'selected' : '' ?>>Student MOA</option>
+                </select>
+                
+                <input 
+                    type="date" 
+                    name="submission_date" 
+                    class="p-2 border rounded-lg" 
+                    value="<?= htmlspecialchars($_GET['submission_date'] ?? '') ?>">
+                
+                <select name="document_status" class="p-2 border rounded-lg">
+                    <option value="">Filter by Status</option>
+                    <option value="For Approval" <?= isset($_GET['document_status']) && $_GET['document_status'] === 'For Approval' ? 'selected' : '' ?>>For Approval</option>
+                    <option value="Approved" <?= isset($_GET['document_status']) && $_GET['document_status'] === 'Approved' ? 'selected' : '' ?>>Approved</option>
+                    <option value="Rejected" <?= isset($_GET['document_status']) && $_GET['document_status'] === 'Rejected' ? 'selected' : '' ?>>Rejected</option>
+                </select>
+
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Filter</button>
+            </div>
+        </form>
             <!-- Pending Documents Section -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-xl font-semibold text-gray-700">Pending Documents</h2>
-    <table class="w-full mt-4 table-auto">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Submission Date</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($forApprovalDocuments as $doc): ?>
-                <tr class="border-b">
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
-                    <td class="px-4 py-2">
-                        <form method="POST" action="../../src/controllers/coordinatorcontroller.php" class="inline">
-                            <input type="hidden" name="document_id" value="<?= $doc['id'] ?>">
-                            <button type="submit" name="action" value="Approved" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
-                            <button type="submit" name="action" value="Rejected" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
-                        </form>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ml-2" 
-                            onclick="openDocumentViewer('<?= htmlspecialchars($doc['document_path']) ?>')">View</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
-
+                <h2 class="text-xl font-semibold text-gray-700">Pending Documents</h2>
+                <table class="w-full mt-4 table-auto">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Submission Date</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($filteredDocuments as $doc): ?>
+                            <tr class="border-b">
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
+                                <td class="px-4 py-2">
+                                    <form method="POST" action="../../src/controllers/coordinatorcontroller.php" class="inline">
+                                        <input type="hidden" name="document_id" value="<?= $doc['id'] ?>">
+                                        <button type="submit" name="action" value="Approved" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
+                                        <button type="submit" name="action" value="Rejected" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
+                                    </form>
+                                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ml-2">
+                                    <a href="view_document.php?document_id=<?= $doc['id'] ?>" target="_blank" >
+                                        View
+                                    </a>
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Approved Documents Section -->
             <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
-    <h2 class="text-xl font-semibold text-gray-700">Approved Documents</h2>
-    <table class="w-full mt-4 table-auto">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Approval Date</th>
-                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
-            </tr>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($approvedDocuments as $doc): ?>
-                <tr class="border-b">
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
-
-
-            <!-- Document Viewer Modal (hidden by default) -->
-            <div id="documentViewerModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-2/3">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Document Viewer</h2>
-                    <iframe class="w-full h-96" src="" id="documentIframe" frameborder="0"></iframe>
-                    <div class="mt-4 text-right">
-                        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" onclick="closeModal()">Close</button>
-                    </div>
-                </div>
+                <h2 class="text-xl font-semibold text-gray-700">Approved Documents</h2>
+                <table class="w-full mt-4 table-auto">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Approval Date</th>
+                            <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($approvedDocuments as $doc): ?>
+                            <tr class="border-b">
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                                <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>
-
-    <!-- Document Modal -->
-    <div id="documentModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-3/4 md:w-1/2">
-            <h3 class="text-2xl font-semibold text-gray-700 mb-4">View Submitted Document</h3>
-            <iframe class="w-full h-96 border border-gray-300" src="path_to_document.pdf"></iframe>
-            <div class="flex justify-end mt-4">
-                <button class="bg-gray-500 text-white py-2 px-6 rounded-md" onclick="closeModal()">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Function to open the document viewer modal
-        function openDocumentViewer(url) {
-            document.getElementById('documentIframe').src = url;
-            document.getElementById('documentViewerModal').classList.remove('hidden');
-        }
-
-        // Function to close the modal
-        function closeModal() {
-            document.getElementById('documentViewerModal').classList.add('hidden');
-        }
-
-         // Modal functionality
-         function openModal() {
-            document.getElementById('documentModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('documentModal').classList.add('hidden');
-        }
-
-        function openDocumentViewer(url) {
-    const iframe = document.getElementById('documentIframe');
-    iframe.src = url; // Set the document URL in the iframe
-    document.getElementById('documentViewerModal').classList.remove('hidden');
-}
-
-        function closeModal() {
-    document.getElementById('documentViewerModal').classList.add('hidden');
-    document.getElementById('documentIframe').src = ""; // Clear the iframe src
-}
-
-    </script>
 
 </body>
 </html>
