@@ -3,7 +3,6 @@ require_once '../../src/controllers/coordinatorcontroller.php';
 
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,15 +91,17 @@ require_once '../../src/controllers/coordinatorcontroller.php';
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Submission Date</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Action</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($pendingDocuments as $doc): ?>
+            <?php foreach ($forApprovalDocuments as $doc): ?>
                 <tr class="border-b">
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
                     <td class="px-4 py-2">
                         <form method="POST" action="" class="inline">
                             <input type="hidden" name="document_id" value="<?= $doc['id'] ?>">
@@ -126,6 +127,8 @@ require_once '../../src/controllers/coordinatorcontroller.php';
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Student Name</th>
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Document Type</th>
                 <th class="px-4 py-2 text-left text-sm text-gray-600">Approval Date</th>
+                <th class="px-4 py-2 text-left text-sm text-gray-600">Document Status</th>
+            </tr>
             </tr>
         </thead>
         <tbody>
@@ -134,6 +137,7 @@ require_once '../../src/controllers/coordinatorcontroller.php';
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['student_name']) ?></td>
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['document_type']) ?></td>
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
@@ -185,6 +189,18 @@ require_once '../../src/controllers/coordinatorcontroller.php';
         function closeModal() {
             document.getElementById('documentModal').classList.add('hidden');
         }
+
+        function openDocumentViewer(url) {
+    const iframe = document.getElementById('documentIframe');
+    iframe.src = url; // Set the document URL in the iframe
+    document.getElementById('documentViewerModal').classList.remove('hidden');
+}
+
+        function closeModal() {
+    document.getElementById('documentViewerModal').classList.add('hidden');
+    document.getElementById('documentIframe').src = ""; // Clear the iframe src
+}
+
     </script>
 
 </body>

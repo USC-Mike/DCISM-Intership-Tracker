@@ -459,6 +459,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+/*
 // Fetching uploaded documents
 function fetchDocuments($status = null) {
     global $pdo;
@@ -507,6 +508,66 @@ function updateDocumentStatus($documentId, $status) {
         $stmt->execute([$status, $documentId]);
         return true;
     } catch (PDOException $e) {
+        return false;
+    }
+}
+*/
+
+function fetchDocuments($status = null) {
+    global $pdo;
+
+    $query = "SELECT d.id, d.student_id, s.full_name AS student_name, d.document_name, d.document_type, 
+                     d.document_status, d.date_uploaded, d.document_path
+              FROM documents d
+              JOIN students s ON d.student_id = s.id";
+    $params = [];
+
+    if ($status) {
+        $query .= " WHERE d.document_status = ?";
+        $params[] = $status;
+    }
+
+    $query .= " ORDER BY d.date_uploaded DESC";
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Fetch documents for specific statuses
+$forApprovalDocuments = fetchDocuments('For Approval');
+$approvedDocuments = fetchDocuments('Approved');
+$rejectedDocuments = fetchDocuments('Rejected');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $documentId = $_POST['document_id'];
+    $action = $_POST['action'];
+
+    if (in_array($action, ['approve', 'reject', 'reset'])) {
+        $status = match ($action) {
+            'approve' => 'Approved',
+            'reject' => 'Rejected',
+            'reset' => 'For Approval', // Reset to 'For Approval' if needed
+        };
+
+        if (updateDocumentStatus($documentId, $status)) {
+            header("Location: document_management.php?success=1");
+            exit();
+        } else {
+            echo "Failed to update document status.";
+        }
+    }
+}
+
+function updateDocumentStatus($documentId, $status) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("UPDATE documents SET document_status = ? WHERE id = ?");
+        $stmt->execute([$status, $documentId]);
+        return true;
+    } catch (PDOException $e) {
+        error_log("Update Document Status Error: " . $e->getMessage());
         return false;
     }
 }
