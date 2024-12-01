@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../../src/controllers/studentcontroller.php';
 
 // Redirect to login page if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -9,6 +9,9 @@ if (!isset($_SESSION['user_id'])) {
 
 // Display full name, defaulting to "Guest" if not set
 $fullName = $_SESSION['full_name'] ?? 'Guest';
+
+// Get the user ID
+// $userId = $_SESSION['user_id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,16 +95,20 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
 
             <h1 class="text-2xl font-semibold text-blue-700">Welcome back, <?php echo htmlspecialchars($fullName); ?>!</h1>
 
-            <!-- Progress Bar -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-xl font-semibold mb-4">Progress Overview</h2>
-                <div class="mt-4">
-                    <div class="w-full bg-gray-200 rounded-full h-6">
-                        <div class="bg-blue-500 h-6 rounded-full" style="width: 75%;"></div>
-                    </div>
-                    <p class="mt-2 text-sm text-gray-600">75% completed (Total Hours: 45 / Required: 60)</p>
-                </div>
-            </div>
+<!-- Progress Bar -->
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-xl font-semibold mb-4">Progress Overview</h2>
+    <div class="mt-4">
+        <div class="w-full bg-gray-200 rounded-full h-6">
+            <div class="bg-blue-500 h-6 rounded-full" style="width: <?= round($progressPercentage) ?>%;"></div>
+        </div>
+        <p class="mt-2 text-sm text-gray-600">
+            <?= round($progressPercentage, 2) ?>% completed 
+            (Total Hours: <?= $totalHoursWorked ?> / Required: <?= $requiredHours ?>)
+        </p>
+    </div>
+</div>
+
 
             <!-- Checklist Overview -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -126,8 +133,8 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-xl font-semibold mb-4">Quick Links</h2>
                 <div class="flex gap-4 mt-4">
-                    <a href="#" class="flex items-center justify-center bg-blue-500 text-white rounded-lg px-4 py-2 w-1/2">Submit Report</a>
-                    <a href="#" class="flex items-center justify-center bg-green-500 text-white rounded-lg px-4 py-2 w-1/2">Performance Evaluation</a>
+                    <a href="reports.php" class="flex items-center justify-center bg-blue-500 text-white rounded-lg px-4 py-2 w-1/2">Submit Report</a>
+                    <a href="checklist.php" class="flex items-center justify-center bg-green-500 text-white rounded-lg px-4 py-2 w-1/2">Review Checklist</a>
                 </div>
             </div>
 

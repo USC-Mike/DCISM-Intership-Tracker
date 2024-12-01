@@ -308,3 +308,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
     }
     
 
+    try {
+        // Fetch required hours for the student
+        $stmt = $pdo->prepare("SELECT required_hours FROM students WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $student = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$student) {
+            throw new Exception("Student record not found.");
+        }
+    
+        $requiredHours = $student['required_hours'];
+    
+        // Fetch total hours worked from the reports table
+        $stmt = $pdo->prepare("SELECT SUM(hours_worked) AS total_hours_worked FROM reports WHERE user_id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $report = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        $totalHoursWorked = $report['total_hours_worked'] ?? 0;
+    
+        // Calculate the progress percentage
+        $progressPercentage = $requiredHours > 0 ? ($totalHoursWorked / $requiredHours) * 100 : 0;
+        $progressPercentage = min(100, max(0, $progressPercentage)); // Clamp value between 0 and 100
+    } catch (Exception $e) {
+        $requiredHours = 0;
+        $totalHoursWorked = 0;
+        $progressPercentage = 0;
+        error_log("Error fetching student progress: " . $e->getMessage());
+    }
