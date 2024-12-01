@@ -316,7 +316,7 @@ if ($mimeType !== 'application/pdf') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
     $studentId = $_SESSION['user_id'];
-    $documentType = $_POST['document_type'];
+    $documentType = trim($_POST['document_type']);
     $file = $_FILES['document'];
 
     // Define upload directory

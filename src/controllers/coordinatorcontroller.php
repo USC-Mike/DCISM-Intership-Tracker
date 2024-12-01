@@ -551,7 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         };
 
         if (updateDocumentStatus($documentId, $status)) {
-            header("Location: document_management.php?success=1");
+            header("Location: ../../public/coordinator/document_management.php?success=1");
             exit();
         } else {
             echo "Failed to update document status.";
@@ -569,5 +569,25 @@ function updateDocumentStatus($documentId, $status) {
     } catch (PDOException $e) {
         error_log("Update Document Status Error: " . $e->getMessage());
         return false;
+    }
+}
+
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['action']) && isset($_POST['document_id'])) {
+        $documentId = $_POST['document_id'];
+        $action = $_POST['action'];
+
+        // Determine status based on the action
+        $status = $action == 'Approved' ? 'Approved' : 'Rejected';
+
+        // Update document status
+        if (updateDocumentStatus($documentId, $status)) {
+            // Optionally, redirect to refresh the page after updating
+            header('Location: ../../public/coordinator/document_management.php');
+            exit;
+        } else {
+            echo "<p class='text-red-500'>There was an error updating the document status.</p>";
+        }
     }
 }

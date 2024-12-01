@@ -103,10 +103,10 @@ require_once '../../src/controllers/coordinatorcontroller.php';
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['date_uploaded']) ?></td>
                     <td class="px-4 py-2"><?= htmlspecialchars($doc['document_status']) ?></td>
                     <td class="px-4 py-2">
-                        <form method="POST" action="" class="inline">
+                        <form method="POST" action="../../src/controllers/coordinatorcontroller.php" class="inline">
                             <input type="hidden" name="document_id" value="<?= $doc['id'] ?>">
-                            <button type="submit" name="action" value="approve" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
-                            <button type="submit" name="action" value="reject" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
+                            <button type="submit" name="action" value="Approved" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Approve</button>
+                            <button type="submit" name="action" value="Rejected" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 ml-2">Reject</button>
                         </form>
                         <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ml-2" 
                             onclick="openDocumentViewer('<?= htmlspecialchars($doc['document_path']) ?>')">View</button>
