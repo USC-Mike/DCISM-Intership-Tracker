@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../../src/controllers/studentcontroller.php';
 include(__DIR__ . '/../../src/config/db.php');; // Adjust path based on your folder structure
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -25,6 +25,8 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$student) {
     die("Student details not found.");
 }
+$userId = $_SESSION['user_id'];
+$unreadNotificationsCount = countUnreadNotifications($userId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,29 +42,33 @@ if (!$student) {
 </head>
 <body class="bg-gray-100 font-lato">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center gap-4">
-                <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
-                <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+<!-- Header -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-4">
+            <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
+            <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <!-- Bell icon with link to notifications page -->
+            <div class="relative">
+                <a href="notifications.php">
+                    <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
+                </a>
+                <?php if ($unreadNotificationsCount > 0): ?>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        <?= htmlspecialchars($unreadNotificationsCount) ?>
+                    </span>
+                <?php endif; ?>
             </div>
-            <div class="flex items-center gap-6">
-                <!-- Bell icon with link to notifications page -->
-                <div class="relative">
-                    <a href="notifications.php">
-                        <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
-                    </a>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
-                </div>
-                <!-- Profile Icon with Dropdown -->
-                <div class="relative group">
-                    <!-- Profile Icon -->
-                    <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
-                </div>
+            <!-- Profile Icon with Dropdown -->
+            <div class="relative group">
+                <!-- Profile Icon -->
+                <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">

@@ -6,12 +6,21 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../../public/login.php');
     exit();
 }
-
+$userId = $_SESSION['user_id'];
 // Display full name, defaulting to "Guest" if not set
 $fullName = $_SESSION['full_name'] ?? 'Guest';
 
-// Get the user ID
-// $userId = $_SESSION['user_id'];
+// Define the specific document types for the checklist overview
+$overviewDocumentTypes = [
+    'Personal and Work Information Document',
+    'Endorsement Letter',
+    'Parents Consent',
+];
+
+// Fetch the statuses for the specific documents
+$overviewDocuments = fetchStudentDocumentsWithStatuses($_SESSION['user_id'], $overviewDocumentTypes);
+
+$unreadNotificationsCount = countUnreadNotifications($userId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,29 +37,33 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
 
 <body class="bg-gray-100 font-lato">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center gap-4">
-                <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
-                <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+<!-- Header -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-4">
+            <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
+            <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <!-- Bell icon with link to notifications page -->
+            <div class="relative">
+                <a href="notifications.php">
+                    <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
+                </a>
+                <?php if ($unreadNotificationsCount > 0): ?>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        <?= htmlspecialchars($unreadNotificationsCount) ?>
+                    </span>
+                <?php endif; ?>
             </div>
-            <div class="flex items-center gap-6">
-                <!-- Bell icon with link to notifications page -->
-                <div class="relative">
-                    <a href="notifications.php">
-                        <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
-                    </a>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
-                </div>
-                <!-- Profile Icon with Dropdown -->
-                <div class="relative group">
-                    <!-- Profile Icon -->
-                    <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
-                </div>
+            <!-- Profile Icon with Dropdown -->
+            <div class="relative group">
+                <!-- Profile Icon -->
+                <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">
@@ -111,51 +124,33 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
 
 
             <!-- Checklist Overview -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-xl font-semibold mb-4">Checklist Overview</h2>
-                <ul class="space-y-4">
-                    <li class="bg-gray-50 p-4 rounded-lg flex justify-between">
-                        <span>Resume</span>
-                        <span class="text-green-500">Submitted</span>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg flex justify-between">
-                        <span>Endorsement Letter</span>
-                        <span class="text-yellow-500">Pending</span>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg flex justify-between">
-                        <span>Company MOA</span>
-                        <span class="text-red-500">Not Submitted</span>
-                    </li>
-                </ul>
-            </div>
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-xl font-semibold mb-4">Checklist Overview</h2>
+    <ul class="space-y-4">
+        <?php foreach ($overviewDocuments as $document): ?>
+            <?php
+            $statusColor = $document['status'] === 'Pending' ? 'text-yellow-500' :
+                           ($document['status'] === 'For Approval' ? 'text-blue-500' :
+                           ($document['status'] === 'Approved' ? 'text-green-500' : 'text-red-500'));
+            ?>
+            <li class="bg-gray-50 p-4 rounded-lg flex justify-between">
+                <span><?= htmlspecialchars($document['type']) ?></span>
+                <span class="<?= $statusColor ?>"><?= htmlspecialchars($document['status']) ?></span>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+
 
             <!-- Quick Links -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-xl font-semibold mb-4">Quick Links</h2>
                 <div class="flex gap-4 mt-4">
                     <a href="reports.php" class="flex items-center justify-center bg-blue-500 text-white rounded-lg px-4 py-2 w-1/2">Submit Report</a>
-                    <a href="checklist.php" class="flex items-center justify-center bg-green-500 text-white rounded-lg px-4 py-2 w-1/2">Review Checklist</a>
+                    <a href="checklist.php" class="flex items-center justify-center bg-green-500 text-white rounded-lg px-4 py-2 w-1/2">View Checklist</a>
                 </div>
             </div>
 
-            <!-- Notifications Section -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-xl font-semibold mb-4">Upcoming Deadlines</h2>
-                <ul class="space-y-4">
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Your report for Week 5 has been approved.</p>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Reminder: Task "Complete Weekly Report" is due tomorrow.</p>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Submit MOA by Nov 20, 2024.</p>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Weekly Report for Week 12 due Nov 22, 2024.</p>
-                    </li>
-                </ul>
-            </div>
 
         </section>
     </main>

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../../src/controllers/studentcontroller.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../public/login.php');
@@ -8,6 +8,10 @@ if (!isset($_SESSION['user_id'])) {
 
 // Display full name
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+// Fetch notifications for the student
+$userId = $_SESSION['user_id'];
+$notifications = fetchStudentNotifications($userId);
+$unreadNotificationsCount = countUnreadNotifications($userId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,29 +32,34 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
 </head>
 <body class="bg-gray-100 font-lato">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center gap-4">
-                <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
-                <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+<!-- Header -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-4">
+            <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
+            <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <!-- Bell icon with link to notifications page -->
+            <div class="relative">
+                <a href="notifications.php">
+                    <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
+                </a>
+                <?php if ($unreadNotificationsCount > 0): ?>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        <?= htmlspecialchars($unreadNotificationsCount) ?>
+                    </span>
+                <?php endif; ?>
             </div>
-            <div class="flex items-center gap-6">
-                <!-- Bell icon with link to notifications page -->
-                <div class="relative">
-                    <a href="notifications.php">
-                        <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
-                    </a>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
-                </div>
-                <!-- Profile Icon with Dropdown -->
-                <div class="relative group">
-                    <!-- Profile Icon -->
-                    <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
-                </div>
+            <!-- Profile Icon with Dropdown -->
+            <div class="relative group">
+                <!-- Profile Icon -->
+                <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
             </div>
         </div>
-    </header>
+    </div>
+</header>
+
 
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">
@@ -91,42 +100,30 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
         </aside>
 
         <!-- Notifications Content -->
-        <section class="flex-1 md:ml-6 space-y-6">
-            <h2 class="text-xl font-semibold text-gray-800">Notifications</h2>
+<section class="flex-1 md:ml-6 space-y-6">
+    <h2 class="text-xl font-semibold text-gray-800">Notifications</h2>
 
-            <!-- Notification List -->
-            <div class="space-y-4">
-                <!-- Notification 1 -->
+    <!-- Notification List -->
+    <div class="space-y-4">
+        <?php if (empty($notifications)): ?>
+            <p class="text-gray-600">No notifications available.</p>
+        <?php else: ?>
+            <?php foreach ($notifications as $notification): ?>
                 <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
                     <div>
-                        <h3 class="text-lg font-medium text-gray-800">OJT Report Deadline Approaching</h3>
-                        <p class="text-sm text-gray-600">Your OJT report submission deadline is approaching. Submit it by the end of the week.</p>
-                        <p class="text-xs text-gray-500 mt-1">Due: 12/15/2024</p>
+                        <h3 class="text-m font-medium text-gray-800">
+                            From: <?= htmlspecialchars($notification['coordinator_name'] ?? 'Admin') ?>
+                        </h3>
+                        <p class="text-lg text-gray-600"><?= htmlspecialchars($notification['message']) ?></p>
+                        <p class="text-sm text-gray-500 mt-1">Sent on: <?= date("F j, Y, g:i A", strtotime($notification['date_sent'])) ?></p>
                     </div>
                     <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
                 </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</section>
 
-                <!-- Notification 2 -->
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-800">Evaluation Submitted</h3>
-                        <p class="text-sm text-gray-600">Your evaluation for OJT has been successfully submitted. Thank you for completing it.</p>
-                        <p class="text-xs text-gray-500 mt-1">Date: 11/20/2024</p>
-                    </div>
-                    <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
-                </div>
-
-                <!-- Notification 3 -->
-                <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:bg-gray-50">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-800">Final Report Submission Reminder</h3>
-                        <p class="text-sm text-gray-600">Reminder: Your final report is due by 12/30/2024. Please upload it before the deadline.</p>
-                        <p class="text-xs text-gray-500 mt-1">Due: 12/30/2024</p>
-                    </div>
-                    <button class="text-blue-500 text-xs font-medium" onclick="markAsRead(this.parentElement)">Mark as Read</button>
-                </div>
-            </div>
-        </section>
     </main>
 
 </body>

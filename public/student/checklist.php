@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../../public/login.php');
     exit();
 }
-
+$userId = $_SESSION['user_id'];
 // Display full name
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
 
@@ -13,7 +13,7 @@ $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session
 $requiredDocumentTypes = [
     'Personal and Work Information Document',
     'Curriculum Vitae',
-    'Parent’s Consent',
+    'Parents Consent',
     'Endorsement Letter',
     'Company MOA',
     'Student MOA',
@@ -22,9 +22,14 @@ $requiredDocumentTypes = [
     'OJT Performance Evaluation (2nd)',
 ];
 
+// var_dump($requiredDocumentTypes); // Check what value is being passed to the query
+
+
 // Fetch all documents with their statuses for the current student
 $documents = fetchStudentDocumentsWithStatuses($_SESSION['user_id'], $requiredDocumentTypes);
 
+
+$unreadNotificationsCount = countUnreadNotifications($userId);
 
 ?>
 <!DOCTYPE html>
@@ -41,29 +46,33 @@ $documents = fetchStudentDocumentsWithStatuses($_SESSION['user_id'], $requiredDo
 </head>
 <body class="bg-gray-100 font-lato">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center gap-4">
-                <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
-                <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+<!-- Header -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-4">
+            <img src="../assets/images/dcism-logo.png" alt="Logo" class="h-10 w-auto">
+            <h1 class="text-xl font-semibold text-blue-500">Internship Tracker</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <!-- Bell icon with link to notifications page -->
+            <div class="relative">
+                <a href="notifications.php">
+                    <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
+                </a>
+                <?php if ($unreadNotificationsCount > 0): ?>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        <?= htmlspecialchars($unreadNotificationsCount) ?>
+                    </span>
+                <?php endif; ?>
             </div>
-            <div class="flex items-center gap-6">
-                <!-- Bell icon with link to notifications page -->
-                <div class="relative">
-                    <a href="notifications.php">
-                        <i class="bx bx-bell text-2xl text-gray-700 cursor-pointer"></i>
-                    </a>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">5</span>
-                </div>
-                <!-- Profile Icon with Dropdown -->
-                <div class="relative group">
-                    <!-- Profile Icon -->
-                    <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
-                </div>
+            <!-- Profile Icon with Dropdown -->
+            <div class="relative group">
+                <!-- Profile Icon -->
+                <i class="bx bx-user-circle text-3xl text-gray-700 cursor-pointer"></i>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Main Content -->
     <main class="flex flex-col md:flex-row p-6">

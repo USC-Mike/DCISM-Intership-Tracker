@@ -130,90 +130,14 @@ function fetchStudentDocumentsWithStatuses($studentId, $requiredDocumentTypes) {
     return $documents;
 }
 
-/* Working but lacking
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
-    $studentId = $_SESSION['user_id'];
-    $documentType = trim($_POST['document_type']);
-    $file = $_FILES['document'];
-
-    // Define upload directory
-    $uploadDir = realpath(__DIR__ . '/../../uploads') . '/';
-    error_log("Resolved Upload Directory: {$uploadDir}");
-
-    try {
-        // Ensure directory exists
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, true)) {
-                throw new Exception("Failed to create upload directory: {$uploadDir}");
-            }
-            error_log("Upload directory created: {$uploadDir}");
-        }
-
-        // Check if directory is writable
-        if (!is_writable($uploadDir)) {
-            throw new Exception("Upload directory is not writable: {$uploadDir}");
-        }
-
-        // Validate file upload
-        if (empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception("File upload error: " . $file['error']);
-        }
-
-        // Check file size (max 50MB)
-        $maxSize = 50 * 1024 * 1024;
-        if ($file['size'] > $maxSize) {
-            throw new Exception("File is too large. Maximum allowed size is 50MB.");
-        }
-
-        // Validate file type
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
-        if ($mimeType !== 'application/pdf') {
-            throw new Exception("Invalid file type. Only PDF files are allowed.");
-        }
-
-        // Generate unique filename
-        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file['name']);
-        $targetFilePath = $uploadDir . $fileName;
-        error_log("Target File Path: {$targetFilePath}");
-
-        // Move file
-        if (!move_uploaded_file($file['tmp_name'], $targetFilePath)) {
-            error_log("move_uploaded_file failed: tmp_name={$file['tmp_name']}, target={$targetFilePath}");
-            throw new Exception("Failed to move uploaded file.");
-        } else {
-            error_log("File successfully moved to: {$targetFilePath}");
-        }
-
-        // Insert or update database record
-        $stmt = $pdo->prepare("
-            INSERT INTO documents (student_id, document_name, document_type, document_path, document_status, date_uploaded)
-            VALUES (?, ?, ?, ?, 'For Approval', NOW())
-            ON DUPLICATE KEY UPDATE 
-                document_name = VALUES(document_name), 
-                document_path = VALUES(document_path), 
-                document_status = 'For Approval', 
-                date_uploaded = NOW()
-        ");
-        $stmt->execute([$studentId, $fileName, $documentType, $targetFilePath]);
-        error_log("Document record inserted/updated in database.");
-
-        // Redirect with success
-        header("Location: ../../public/student/checklist.php?upload_success=1");
-    } catch (Exception $e) {
-        error_log("Upload Error: " . $e->getMessage());
-        header("Location: ../../public/student/checklist.php?upload_error=" . urlencode($e->getMessage()));
-        exit();
-    }
-}
-    */
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
         $studentId = $_SESSION['user_id'];
         $documentType = trim($_POST['document_type']);
         $file = $_FILES['document'];
     
+        var_dump($documentType); // Check what is being passed for document_type
+
         // Define upload directory
         $uploadDir = realpath(__DIR__ . '/../../uploads') . '/';
         error_log("Resolved Upload Directory: {$uploadDir}");
@@ -336,3 +260,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_document'])) {
         $progressPercentage = 0;
         error_log("Error fetching student progress: " . $e->getMessage());
     }
+
+
+
+    function fetchReportTemplates($searchQuery = '') {
+        // Define the templates directory path
+        $templatesDir = __DIR__ . '/../../report_templates/';
+        if ($templatesDir === false || !is_dir($templatesDir)) {
+            die("Templates directory does not exist or is inaccessible.");
+        }
+        
+    
+        // Fetch templates
+        $templates = [];
+        foreach (glob($templatesDir . '/*') as $filePath) {
+            if (is_file($filePath)) {
+                $fileName = basename($filePath);
+                $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
+    
+                // Apply search filter
+                if ($searchQuery && stripos($fileName, $searchQuery) === false) {
+                    continue;
+                }
+    
+                $templates[] = [
+                    'name' => $fileName,
+                    'type' => strtoupper($fileType),
+                    'path' => $filePath,
+                ];
+            }
+        }
+    
+        return $templates;
+    }
+
+    // Function to generate the base URL dynamically
+// Function to generate the base URL dynamically
+function base_url($path = '') {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $baseDir = '/DCISM-Intership-Tracker/src/controllers/';
+    return $protocol . '://' . $host . $baseDir . $path;
+}
+
+
+if (isset($_GET['file'])) {
+    $file = $_GET['file'];
+    $filePath = '/Applications/XAMPP/xamppfiles/htdocs/DCISM-Intership-Tracker/report_templates/' . basename($file);  // Sanitize file name for security
+
+    if (file_exists($filePath)) {
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+        readfile($filePath);
+        exit;
+    } else {
+        echo 'File not found.';
+    }
+}
+
+function fetchStudentNotifications($studentId) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT n.id, n.message, n.date_sent, c.full_name AS coordinator_name
+            FROM notifications n
+            LEFT JOIN coordinators c ON n.sender_id = c.id
+            WHERE n.recipient_id = :studentId OR n.recipient_id IS NULL
+            ORDER BY n.date_sent DESC
+        ");
+        $stmt->execute([':studentId' => $studentId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error fetching notifications: " . $e->getMessage());
+        return [];
+    }
+}
+
+
+function countUnreadNotifications($studentId) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM notifications 
+            WHERE (recipient_id = :studentId OR recipient_id IS NULL)
+              AND is_read = 0
+        ");
+        $stmt->execute([':studentId' => $studentId]);
+        return (int)$stmt->fetchColumn();
+    } catch (PDOException $e) {
+        error_log("Error counting unread notifications: " . $e->getMessage());
+        return 0;
+    }
+}
+
+function markNotificationAsRead($notificationId, $studentId) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE notifications 
+            SET is_read = 1 
+            WHERE id = :id AND (recipient_id = :studentId OR recipient_id IS NULL)
+        ");
+        $stmt->execute([':id' => $notificationId, ':studentId' => $studentId]);
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error marking notification as read: " . $e->getMessage());
+        return false;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_as_read'])) {
+    $notificationId = intval($_POST['notification_id']);
+    $studentId = $_SESSION['user_id'];
+
+    if (markNotificationAsRead($notificationId, $studentId)) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit;
+}
