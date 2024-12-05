@@ -1,22 +1,20 @@
 <?php
 require_once '../../src/controllers/studentcontroller.php';
-include(__DIR__ . '/../../src/config/db.php');; // Adjust path based on your folder structure
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
-    exit();
+require_once '../../src/config/db.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+
 
 // Check if PDO connection is set
 if (!isset($pdo)) {
     die('Database connection failed.');
 }
 
-// Display full name
-$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
-// Fetch student details
 $userId = $_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+
 $stmt = $pdo->prepare("SELECT full_name, mobile, email, course, schoolyear, coordinator, work_schedule, company_name, supervisor_name, company_address, company_email, supervisor_contact
         FROM students WHERE id = ?");
 $stmt->execute([$userId]);

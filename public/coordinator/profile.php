@@ -1,18 +1,11 @@
-
 <?php
-session_start();
-include(__DIR__ . '/../../src/config/db.php');; // Adjust path based on your folder structure
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
-    exit();
+require_once '../../src/controllers/coordinatorcontroller.php';
+require_once '../../src/config/db.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Check if PDO connection is set
-if (!isset($pdo)) {
-    die('Database connection failed.');
-}
 
 // Display full name
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set

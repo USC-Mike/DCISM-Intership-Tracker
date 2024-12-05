@@ -5,10 +5,15 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Redirect if user is not logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+} else {
+    // Handle case where user is not logged in or session expired
+    echo "User not logged in.";
     exit();
 }
+
+$userId = $_SESSION['user_id'];
 
 // Check database connection
 if (!isset($pdo)) {
@@ -61,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $_SESSION['user_id'];
             $hoursWorked = $_POST['hours'];
             $workDescription = $_POST['work-description'];
+            $status = 'Pending';
 
             // Sanitize and validate inputs
             $date = htmlspecialchars($date);
@@ -83,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Prepare and execute the SQL statement
             try {
-                $stmt = $pdo->prepare("INSERT INTO reports (user_id, report_type, date, week_number, hours_worked, work_description) 
-                                       VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$userId, $reportType, $date, $week_number, $hoursWorked, $workDescription]);
+                $stmt = $pdo->prepare("INSERT INTO reports (user_id, report_type, report_status,  date, week_number, hours_worked, work_description) 
+                                       VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$userId, $reportType, $status, $date, $week_number, $hoursWorked, $workDescription]);
 
                 // Redirect with success notification
                 header("Location: ../../public/student/reports.php?success=1");

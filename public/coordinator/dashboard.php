@@ -1,6 +1,11 @@
 <?php
 require_once '../../src/controllers/coordinatorcontroller.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+
 // Redirect to login page if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../public/login.php');
@@ -125,33 +130,17 @@ $fullName = $_SESSION['full_name'] ?? 'Guest';
                 <h2 class="text-xl font-semibold mb-4">Quick Links</h2>
                 <div class="flex gap-4 mt-4">
                     <a href="document_management.php" class="flex items-center justify-center bg-blue-500 text-white rounded-lg px-4 py-2 w-1/3">
-                        Approve Documents
+                        Approve Pending Documents
                     </a>
                     <a href="report_management.php" class="flex items-center justify-center bg-green-500 text-white rounded-lg px-4 py-2 w-1/3">
                         Review Reports
                     </a>
                     <a href="student_management.php" class="flex items-center justify-center bg-yellow-500 text-white rounded-lg px-4 py-2 w-1/3">
-                        Review Students
+                        Review Active Students
                     </a>
                 </div>
             </div>
 
-            <!-- Notifications Section -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-xl font-semibold mb-4">Recent Notifications</h2>
-                <ul class="space-y-4">
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Student X submitted MOA.</p>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">RWeekly Report from Student Y.</p>
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Evaluation for Student Z due.</p>
-                    </li>
-                    <!-- Add more notifications here -->
-                </ul>
-            </div>
         </section>
     </main>
 

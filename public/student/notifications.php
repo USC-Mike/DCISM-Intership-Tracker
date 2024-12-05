@@ -1,15 +1,13 @@
 <?php
 require_once '../../src/controllers/studentcontroller.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Display full name
-$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
-// Fetch notifications for the student
 $userId = $_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+
 $notifications = fetchStudentNotifications($userId);
 $unreadNotificationsCount = countUnreadNotifications($userId);
 ?>

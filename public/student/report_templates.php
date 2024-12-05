@@ -1,13 +1,17 @@
 <?php
 require_once '../../src/controllers/studentcontroller.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Redirect to login page if the user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../public/login.php');
     exit();
 }
-$userId = $_SESSION['user_id'];
 
-// Display full name
+$userId = $_SESSION['user_id'];
 $fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
 
 // Handle search query

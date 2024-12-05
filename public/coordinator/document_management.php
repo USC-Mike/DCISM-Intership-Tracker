@@ -1,5 +1,10 @@
 <?php
 require_once '../../src/controllers/coordinatorcontroller.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 ?>
 
 <!DOCTYPE html>

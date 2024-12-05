@@ -1,10 +1,10 @@
 <?php
 require_once '../../src/controllers/studentcontroller.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../public/login.php');
-    exit();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+
 
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
@@ -17,6 +17,9 @@ if (isset($_SESSION['user_id'])) {
 // Include the database connection
 require_once '../../src/config/db.php'; // Adjust the path as needed
 
+$userId = $_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+
 // Fetch reports for the logged-in user
 $reports = [];
 $stmt = $pdo->prepare("SELECT * FROM reports WHERE user_id = :user_id");
@@ -26,14 +29,8 @@ if ($stmt->rowCount() > 0) {
     $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-//var_dump($reports); // Debugging statement to ensure reports are retrieved correctly
-
-
-// var_dump($_SESSION['user_id']); // Debugging session variable
-$userId = $_SESSION['user_id'];
 $unreadNotificationsCount = countUnreadNotifications($userId);
-// Display full name
-$fullName = $_SESSION['full_name'] ?? 'Guest'; // Fallback to "Guest" if session is not set
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
